@@ -1,17 +1,24 @@
 package com.jakeesveld.hmlserver.service;
 
 import com.jakeesveld.hmlserver.model.User;
+import com.jakeesveld.hmlserver.model.UserRoles;
 import com.jakeesveld.hmlserver.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service(value = "userService")
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
-    private UserRepo userRepo;
+    private final UserRepo userRepo;
 
     @Autowired
     public UserServiceImpl(UserRepo userRepo) {
@@ -30,6 +37,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(User user) {
+        User newUser = new User(user.getUsername(), user.getPassword(), user.getEmail());
+
+        List<UserRoles> userRoles = new ArrayList<>();
+
+        for (UserRoles ur: user.getUserRoles()){
+            userRoles.add(new UserRoles(newUser, ur.getRole()));
+        }
+
+        newUser.setUserRoles(userRoles);
         return userRepo.save(user);
     }
 
@@ -56,4 +72,12 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Override
+    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+        Optional<User> user = userRepo.findByUsername(s);
+        if (user.isEmpty())
+        {
+            throw new UsernameNotFoundException("Invalid username or password.");
+        }
+        return new org.springframework.security.core.userdetails.User(user.get().getUsername(), user.get().getPassword(), new ArrayList<SimpleGrantedAuthority>());    }
 }
