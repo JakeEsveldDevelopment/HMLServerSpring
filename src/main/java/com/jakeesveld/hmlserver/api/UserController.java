@@ -58,21 +58,26 @@ public class UserController {
 
     @PutMapping(value = "/user/contacts/add/{username")
     public ResponseEntity<?> addUserContact(Authentication authentication, @PathVariable String username){
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User currentUser = userService.findByUsername(userDetails.getUsername()).orElseThrow(EntityNotFoundException::new);
-        User contactUser = userService.findByUsernameContaining(username).orElseThrow(EntityNotFoundException::new);
-        currentUser.addContact(contactUser);
-        User updatedUser = userService.update(currentUser, currentUser.getId());
-        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        return new ResponseEntity<>(manageContacts(authentication, username, false), HttpStatus.OK);
     }
 
     @PutMapping(value = "/user/contacts/delete/{username")
     public ResponseEntity<?> deleteUserContact(Authentication authentication, @PathVariable String username){
+        return new ResponseEntity<>(manageContacts(authentication, username, true), HttpStatus.OK);
+    }
+
+
+
+
+    private User manageContacts(Authentication authentication, String username, boolean add){
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         User currentUser = userService.findByUsername(userDetails.getUsername()).orElseThrow(EntityNotFoundException::new);
         User contactUser = userService.findByUsernameContaining(username).orElseThrow(EntityNotFoundException::new);
-        currentUser.deleteContact(contactUser);
-        User updatedUser = userService.update(currentUser, currentUser.getId());
-        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        if(add){
+            currentUser.addContact(contactUser);
+        }else{
+            currentUser.deleteContact(contactUser);
+        }
+        return userService.update(currentUser, currentUser.getId());
     }
 }
