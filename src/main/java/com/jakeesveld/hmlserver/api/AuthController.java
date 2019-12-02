@@ -23,41 +23,16 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthController {
 
     private final UserService userService;
-    private final TokenStore tokenStore;
-    private final AuthenticationManager authenticationManager;
-    private final PasswordEncoder encoder;
 
     @Autowired
-    public AuthController(@Lazy TokenStore tokenStore,
-                          UserService userService,
-                          @Lazy AuthenticationManager authenticationManager,
-                          @Lazy PasswordEncoder encoder) {
-        this.tokenStore = tokenStore;
+    public AuthController(UserService userService) {
         this.userService = userService;
-        this.authenticationManager = authenticationManager;
-        this.encoder = encoder;
     }
 
-    @PostMapping(value = "/register")
+    @PostMapping(value = "/register", produces = {"application/json"})
     public ResponseEntity<?> handleSignup(@RequestBody User user, HttpServletRequest request){
         userService.save(user);
-        UsernamePasswordAuthenticationToken token = getToken(user.getUsername(), encoder.encode(user.getPassword()), request);
-        if(token != null) {
-            SecurityContextHolder.getContext().setAuthentication(token);
-            return new ResponseEntity<>(token, HttpStatus.OK);
-        }else{
-            throw new AuthenticationServiceException("Failed to create user.");
-        }
+        return new ResponseEntity<>("Created User Sucessfully", HttpStatus.OK);
     }
 
-    private UsernamePasswordAuthenticationToken getToken(String username, String password, HttpServletRequest request) {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-        token.setDetails(new WebAuthenticationDetails(request));
-        authenticationManager.authenticate(token);
-
-        if(token.isAuthenticated()){
-            return token;
-        }
-        return null;
-    }
 }

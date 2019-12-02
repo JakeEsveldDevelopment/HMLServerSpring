@@ -71,6 +71,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return null;
     }
 
+    @Override
+    public Optional<User> findByUsernameContaining(String username) {
+        return userRepo.findByUsernameContaining(username);
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {

@@ -15,5 +15,5 @@ public interface UserService {
 
     User update(User user, long id);
 
-
+    Optional<User> findByUsernameContaining(String username);
 }
