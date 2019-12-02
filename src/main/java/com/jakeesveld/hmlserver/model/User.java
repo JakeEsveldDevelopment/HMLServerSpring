@@ -32,10 +32,14 @@ public class User {
     @JsonIgnoreProperties("user")
     private List<UserRoles> userRoles;
 
+    @Column
+    private List<User> contacts;
+
     public User(String username, String password, String email) {
         this.username = username;
         this.setPassword(password);
         this.email = email;
+        this.contacts = new ArrayList<>();
     }
 
     public User(String username, String password, String email, List<UserRoles> userRoles) {
@@ -46,9 +50,26 @@ public class User {
             ur.setUser(this);
         }
         this.userRoles = userRoles;
+        this.contacts = new ArrayList<>();
     }
 
     public User() {
+    }
+
+    public List<User> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<User> contacts) {
+        this.contacts = contacts;
+    }
+
+    public void addContact(User contactUser){
+        this.contacts.add(contactUser);
+    }
+
+    public void deleteContact(User contacUser){
+        this.contacts.remove(contacUser);
     }
 
     public long getId() {
