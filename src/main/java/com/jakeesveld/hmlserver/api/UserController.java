@@ -58,15 +58,13 @@ public class UserController {
 
     @PutMapping(value = "/user/contacts/add/{username")
     public ResponseEntity<?> addUserContact(Authentication authentication, @PathVariable String username){
-        return new ResponseEntity<>(manageContacts(authentication, username, false), HttpStatus.OK);
+        return new ResponseEntity<>(manageContacts(authentication, username, true), HttpStatus.OK);
     }
 
     @PutMapping(value = "/user/contacts/delete/{username")
     public ResponseEntity<?> deleteUserContact(Authentication authentication, @PathVariable String username){
-        return new ResponseEntity<>(manageContacts(authentication, username, true), HttpStatus.OK);
+        return new ResponseEntity<>(manageContacts(authentication, username, false), HttpStatus.OK);
     }
-
-
 
 
     private User manageContacts(Authentication authentication, String username, boolean add){
