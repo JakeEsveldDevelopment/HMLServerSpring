@@ -2,7 +2,6 @@ package com.jakeesveld.hmlserver.api;
 
 import com.jakeesveld.hmlserver.model.User;
 import com.jakeesveld.hmlserver.service.UserService;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +36,16 @@ public class UserController {
 
     @PutMapping(value = "/update/me")
     public ResponseEntity<?> updateUser(Authentication authentication, @RequestBody User user){
-        return new ResponseEntity<>(userService.update(user, user.getId()), HttpStatus.OK);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User currentUser = userService.findByUsername(userDetails.getUsername()).orElseThrow(EntityNotFoundException::new);
+        return new ResponseEntity<>(userService.update(user, currentUser.getId()), HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/user/delete")
+    public ResponseEntity<?> deleteCurrentUser(Authentication authentication){
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User user = userService.findByUsername(userDetails.getUsername()).orElseThrow(EntityNotFoundException::new);
+        userService.delete(user.getId());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
