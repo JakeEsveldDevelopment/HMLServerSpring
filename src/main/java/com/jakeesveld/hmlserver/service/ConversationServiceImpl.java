@@ -5,12 +5,14 @@ import com.jakeesveld.hmlserver.model.User;
 import com.jakeesveld.hmlserver.repo.ConversationRepo;
 import com.jakeesveld.hmlserver.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityExistsException;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ConversationServiceImpl implements ConversationService {
 
     private final ConversationRepo conversationRepo;
