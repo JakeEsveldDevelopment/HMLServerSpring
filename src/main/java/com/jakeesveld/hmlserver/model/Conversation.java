@@ -53,6 +53,10 @@ public class Conversation {
         return messages;
     }
 
+    public void addMessage(Message message){ this.messages.add(message);}
+
+    public void deleteMessage(Message message){ this.messages.remove(message);}
+
     public void setMessages(List<Message> messages) {
         this.messages = messages;
     }

@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityExistsException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,18 +58,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User update(User user, long id) {
-        Optional<User> currentUser = userRepo.findById(id);
+        User currentUser = userRepo.findById(id).orElseThrow(EntityExistsException::new);
         for(Field f: user.getClass().getDeclaredFields()){
             f.setAccessible(true);
             try {
-                if (f.get(user) == null && currentUser.isPresent()) {
-                    f.set(user, currentUser.get().getClass().getField(f.getName()));
+                if (f.get(user) != null) {
+                    f.set(currentUser.getClass().getField(f.getName()), f);
+
                 }
             } catch (IllegalAccessException | NoSuchFieldException e) {
                 e.printStackTrace();
             }
         }
-        return null;
+        return userRepo.save(currentUser);
+
     }
 
     @Override
